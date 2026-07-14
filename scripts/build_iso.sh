@@ -15,7 +15,8 @@ if [ "$(id -u)" -ne 0 ]; then
         SUDO="sudo"
         echo "Running privileged commands with sudo..."
     else
-        echo "Warning: Build script should be run as root, but sudo was not found. Attempting to run directly."
+        echo "ERROR: This script must be run as root (or with sudo). Please run as root (e.g. run 'su -' first, or install sudo via 'apk add sudo')."
+        exit 1
     fi
 fi
 
@@ -51,23 +52,39 @@ echo "Overlay path exported: $NOVAOS_OVERLAY"
 echo "Checking for relative abuild keys..."
 CONF_PRIVKEY=""
 CONF_PUBKEY=""
-if [ -f /etc/abuild.conf ]; then
-    eval "$(grep -E "^PACKAGER_(PRIVKEY|PUBKEY)=" /etc/abuild.conf)" || true
-    [ -n "$PACKAGER_PRIVKEY" ] && CONF_PRIVKEY="$PACKAGER_PRIVKEY"
-    [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
-fi
-if [ -f "$HOME/.abuild/abuild.conf" ]; then
-    eval "$(grep -E "^PACKAGER_(PRIVKEY|PUBKEY)=" "$HOME/.abuild/abuild.conf")" || true
-    [ -n "$PACKAGER_PRIVKEY" ] && CONF_PRIVKEY="$PACKAGER_PRIVKEY"
-    [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
-fi
+
+# Gather potential config paths (root's home, ~/.abuild, and all user homes in /home)
+CONFIG_PATHS=("/etc/abuild.conf" "$HOME/.abuild/abuild.conf" "$HOME/abuild.conf")
+for user_home in /home/*; do
+    if [ -d "$user_home/.abuild" ]; then
+        CONFIG_PATHS+=("$user_home/.abuild/abuild.conf")
+    fi
+done
+
+# Read the configurations
+for conf in "${CONFIG_PATHS[@]}"; do
+    if [ -f "$conf" ]; then
+        eval "$(grep -E "^PACKAGER_(PRIVKEY|PUBKEY)=" "$conf")" || true
+        [ -n "$PACKAGER_PRIVKEY" ] && CONF_PRIVKEY="$PACKAGER_PRIVKEY"
+        [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
+    fi
+done
 
 if [ -n "$CONF_PRIVKEY" ] && [ -z "$CONF_PUBKEY" ]; then
     CONF_PUBKEY="${CONF_PRIVKEY}.pub"
 fi
 
+# Gather search directories for the actual key files
+SEARCH_DIRS=("$HOME/.abuild" "$HOME" "$ROOT_DIR" "/etc/apk/keys")
+for user_home in /home/*; do
+    if [ -d "$user_home" ]; then
+        SEARCH_DIRS+=("$user_home/.abuild" "$user_home")
+    fi
+done
+
+# Copy the keys to target scripts directory if relative paths are used
 if [ -n "$CONF_PUBKEY" ] && [[ "$CONF_PUBKEY" != /* ]]; then
-    for dir in "$HOME/.abuild" "$HOME" "$ROOT_DIR"; do
+    for dir in "${SEARCH_DIRS[@]}"; do
         if [ -f "$dir/$CONF_PUBKEY" ]; then
             echo "Copying key $CONF_PUBKEY from $dir to scripts dir..."
             cp "$dir/$CONF_PUBKEY" "$ROOT_DIR/build/aports/scripts/"
@@ -77,7 +94,7 @@ if [ -n "$CONF_PUBKEY" ] && [[ "$CONF_PUBKEY" != /* ]]; then
 fi
 
 if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
-    for dir in "$HOME/.abuild" "$HOME" "$ROOT_DIR"; do
+    for dir in "${SEARCH_DIRS[@]}"; do
         if [ -f "$dir/$CONF_PRIVKEY" ]; then
             echo "Copying key $CONF_PRIVKEY from $dir to scripts dir..."
             cp "$dir/$CONF_PRIVKEY" "$ROOT_DIR/build/aports/scripts/"
