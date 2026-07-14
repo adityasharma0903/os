@@ -62,6 +62,10 @@ if [ -f "$HOME/.abuild/abuild.conf" ]; then
     [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
 fi
 
+if [ -n "$CONF_PRIVKEY" ] && [ -z "$CONF_PUBKEY" ]; then
+    CONF_PUBKEY="${CONF_PRIVKEY}.pub"
+fi
+
 if [ -n "$CONF_PUBKEY" ] && [[ "$CONF_PUBKEY" != /* ]]; then
     for dir in "$HOME/.abuild" "$HOME" "$ROOT_DIR"; do
         if [ -f "$dir/$CONF_PUBKEY" ]; then
