@@ -29,6 +29,11 @@ $SUDO rm -rf "$ROOT_DIR/releases"
 mkdir -p "$ROOT_DIR/build"
 mkdir -p "$ROOT_DIR/releases"
 
+# Set up custom temp directory to avoid running out of space on /tmp (tmpfs RAM disk)
+export TMPDIR="$ROOT_DIR/build/tmp"
+mkdir -p "$TMPDIR"
+echo "TMPDIR set to storage-backed directory: $TMPDIR"
+
 # Clone clean aports if not already there
 echo "Cloning alpine aports repository (branch 3.24-stable)..."
 git clone --depth=1 -b 3.24-stable https://gitlab.alpinelinux.org/alpine/aports.git "$ROOT_DIR/build/aports"
