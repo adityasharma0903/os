@@ -7,7 +7,10 @@ profile_novaos() {
 	apkovl="genapkovl-novaos.sh"
 	
 	apks="$apks \
+		dbus \
+		dbus-openrc \
 		lightdm \
+		lightdm-openrc \
 		lightdm-gtk-greeter \
 		lxqt-desktop \
 		openbox \
@@ -15,5 +18,7 @@ profile_novaos() {
 		qterminal \
 		firefox \
 		xf86-video-vmware \
-		xf86-input-libinput"
+		xf86-input-libinput \
+		udev \
+		udev-openrc"
 }
