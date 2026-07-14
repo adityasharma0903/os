@@ -8,10 +8,21 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 echo "=== NovaOS v2 ISO Build Script ==="
 echo "Root directory: $ROOT_DIR"
 
-# Clean old builds and releases
+# Determine if we need sudo
+SUDO=""
+if [ "$(id -u)" -ne 0 ]; then
+    if command -v sudo >/dev/null 2>&1; then
+        SUDO="sudo"
+        echo "Running privileged commands with sudo..."
+    else
+        echo "Warning: Build script should be run as root, but sudo was not found. Attempting to run directly."
+    fi
+fi
+
+# Clean old builds and releases using sudo (since previous runs create root-owned files)
 echo "Cleaning old builds and releases..."
-rm -rf "$ROOT_DIR/build"
-rm -rf "$ROOT_DIR/releases"
+$SUDO rm -rf "$ROOT_DIR/build"
+$SUDO rm -rf "$ROOT_DIR/releases"
 
 # Re-create directories
 mkdir -p "$ROOT_DIR/build"
@@ -39,17 +50,6 @@ echo "Overlay path exported: $NOVAOS_OVERLAY"
 # Build the ISO
 echo "Starting Alpine mkimage build..."
 cd "$ROOT_DIR/build/aports/scripts"
-
-# Determine if we need sudo
-SUDO=""
-if [ "$(id -u)" -ne 0 ]; then
-    if command -v sudo >/dev/null 2>&1; then
-        SUDO="sudo"
-        echo "Running build with sudo..."
-    else
-        echo "Warning: Build script should be run as root, but sudo was not found. Attempting to run directly."
-    fi
-fi
 
 # Run mkimage
 $SUDO ./mkimage.sh \
