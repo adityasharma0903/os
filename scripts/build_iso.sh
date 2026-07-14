@@ -47,6 +47,41 @@ sed -i 's/--no-chown//g' "$ROOT_DIR/build/aports/scripts/mkimage.sh"
 export NOVAOS_OVERLAY="$ROOT_DIR/overlay"
 echo "Overlay path exported: $NOVAOS_OVERLAY"
 
+# Copy abuild keys if they are relative paths to ensure mkimage.sh can find them
+echo "Checking for relative abuild keys..."
+CONF_PRIVKEY=""
+CONF_PUBKEY=""
+if [ -f /etc/abuild.conf ]; then
+    eval "$(grep -E "^PACKAGER_(PRIVKEY|PUBKEY)=" /etc/abuild.conf)" || true
+    [ -n "$PACKAGER_PRIVKEY" ] && CONF_PRIVKEY="$PACKAGER_PRIVKEY"
+    [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
+fi
+if [ -f "$HOME/.abuild/abuild.conf" ]; then
+    eval "$(grep -E "^PACKAGER_(PRIVKEY|PUBKEY)=" "$HOME/.abuild/abuild.conf")" || true
+    [ -n "$PACKAGER_PRIVKEY" ] && CONF_PRIVKEY="$PACKAGER_PRIVKEY"
+    [ -n "$PACKAGER_PUBKEY" ] && CONF_PUBKEY="$PACKAGER_PUBKEY"
+fi
+
+if [ -n "$CONF_PUBKEY" ] && [[ "$CONF_PUBKEY" != /* ]]; then
+    for dir in "$HOME/.abuild" "$HOME" "$ROOT_DIR"; do
+        if [ -f "$dir/$CONF_PUBKEY" ]; then
+            echo "Copying key $CONF_PUBKEY from $dir to scripts dir..."
+            cp "$dir/$CONF_PUBKEY" "$ROOT_DIR/build/aports/scripts/"
+            break
+        fi
+    done
+fi
+
+if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
+    for dir in "$HOME/.abuild" "$HOME" "$ROOT_DIR"; do
+        if [ -f "$dir/$CONF_PRIVKEY" ]; then
+            echo "Copying key $CONF_PRIVKEY from $dir to scripts dir..."
+            cp "$dir/$CONF_PRIVKEY" "$ROOT_DIR/build/aports/scripts/"
+            break
+        fi
+    done
+fi
+
 # Build the ISO
 echo "Starting Alpine mkimage build..."
 cd "$ROOT_DIR/build/aports/scripts"
