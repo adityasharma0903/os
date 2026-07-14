@@ -28,6 +28,10 @@ cp "$ROOT_DIR/configs/genapkovl-novaos.sh" "$ROOT_DIR/build/aports/scripts/"
 chmod +x "$ROOT_DIR/build/aports/scripts/genapkovl-novaos.sh"
 chmod +x "$ROOT_DIR/build/aports/scripts/mkimg.novaos.sh"
 
+# Patch mkimage.sh to remove --no-chown flag (fixes apk 3.x --usermode compat)
+echo "Patching mkimage.sh for apk 3.x --usermode compatibility..."
+sed -i 's/--no-chown//g' "$ROOT_DIR/build/aports/scripts/mkimage.sh"
+
 # Export the overlay directory location so our genapkovl script can access it
 export NOVAOS_OVERLAY="$ROOT_DIR/overlay"
 echo "Overlay path exported: $NOVAOS_OVERLAY"
