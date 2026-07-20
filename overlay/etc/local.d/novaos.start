@@ -1,0 +1,25 @@
+#!/bin/sh
+# Automatic NovaOS Desktop startup script
+
+if [ ! -f /tmp/.novaos_started ]; then
+    touch /tmp/.novaos_started
+    
+    # Mount CD-ROM if not already mounted
+    mkdir -p /media/cdrom
+    mount -t iso9660 /dev/cdrom /media/cdrom 2>/dev/null || mount -t iso9660 /dev/sr0 /media/cdrom 2>/dev/null || true
+
+    # Register local CD repository
+    if [ -d /media/cdrom/apks ]; then
+        echo "/media/cdrom/apks" >> /etc/apk/repositories
+        apk add --allow-untrusted \
+            dbus dbus-openrc \
+            lightdm lightdm-openrc lightdm-gtk-greeter \
+            lxqt-desktop openbox pcmanfm-qt qterminal \
+            firefox xorg-server xf86-video-vmware xf86-input-libinput \
+            font-dejavu mesa-dri-gallium udev || true
+    fi
+
+    # Start services
+    rc-service dbus start || true
+    rc-service lightdm start || true
+fi
