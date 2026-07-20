@@ -23,6 +23,5 @@ profile_novaos() {
 		font-dejavu \
 		mesa-dri-gallium \
 		udev \
-		udev-openrc \
 		ca-certificates"
 }
