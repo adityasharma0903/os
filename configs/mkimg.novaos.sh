@@ -17,8 +17,11 @@ profile_novaos() {
 		pcmanfm-qt \
 		qterminal \
 		firefox \
+		xorg-server \
 		xf86-video-vmware \
 		xf86-input-libinput \
+		font-dejavu \
+		mesa-dri-gallium \
 		udev \
 		udev-openrc"
 }
