@@ -20,23 +20,27 @@ if [ "$(id -u)" -ne 0 ]; then
     fi
 fi
 
-# Clean old builds and releases using sudo (since previous runs create root-owned files)
-echo "Cleaning old builds and releases..."
-$SUDO rm -rf "$ROOT_DIR/build"
-$SUDO rm -rf "$ROOT_DIR/releases"
-
-# Re-create directories
+# Prepare directories (preserve build/ for caching downloaded apk packages and repo)
 mkdir -p "$ROOT_DIR/build"
 mkdir -p "$ROOT_DIR/releases"
+
+# Clean old ISO releases and temporary image assemblies (preserving package cache)
+echo "Cleaning old ISO outputs (cached packages preserved)..."
+$SUDO rm -rf "$ROOT_DIR/releases"/*
+$SUDO rm -rf "$ROOT_DIR/build/work"/image-*
 
 # Set up custom temp directory to avoid running out of space on /tmp (tmpfs RAM disk)
 export TMPDIR="$ROOT_DIR/build/tmp"
 mkdir -p "$TMPDIR"
 echo "TMPDIR set to storage-backed directory: $TMPDIR"
 
-# Clone clean aports if not already there
-echo "Cloning alpine aports repository (branch 3.24-stable)..."
-git clone --depth=1 -b 3.24-stable https://gitlab.alpinelinux.org/alpine/aports.git "$ROOT_DIR/build/aports"
+# Clone clean aports ONLY if not already present
+if [ ! -d "$ROOT_DIR/build/aports/.git" ]; then
+    echo "Cloning alpine aports repository (branch 3.24-stable)..."
+    git clone --depth=1 -b 3.24-stable https://gitlab.alpinelinux.org/alpine/aports.git "$ROOT_DIR/build/aports"
+else
+    echo "Using cached aports repository..."
+fi
 
 # Setup custom configs
 echo "Setting up custom profiles..."
