@@ -112,6 +112,12 @@ if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
     done
 fi
 
+# Update any existing repository configuration files in workdir from https to http
+if [ -d "$ROOT_DIR/build/work" ]; then
+    echo "Updating existing workdir repositories to use http mirrors..."
+    find "$ROOT_DIR/build/work" -name "repositories" -exec sed -i 's|https://|http://|g' {} + || true
+fi
+
 # Build the ISO
 echo "Starting Alpine mkimage build..."
 cd "$ROOT_DIR/build/aports/scripts"
