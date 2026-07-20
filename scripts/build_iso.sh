@@ -122,7 +122,7 @@ $SUDO ./mkimage.sh \
     --arch x86_64 \
     --outdir "$ROOT_DIR/releases" \
     --workdir "$ROOT_DIR/build/work" \
-    --repository "https://dl-cdn.alpinelinux.org/alpine/v3.24/main" \
-    --repository "https://dl-cdn.alpinelinux.org/alpine/v3.24/community"
+    --repository "http://dl-cdn.alpinelinux.org/alpine/v3.24/main" \
+    --repository "http://dl-cdn.alpinelinux.org/alpine/v3.24/community"
 
 echo "Build finished! Check releases/ directory for the output ISO."
