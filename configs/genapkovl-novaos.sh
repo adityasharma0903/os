@@ -15,6 +15,18 @@ trap "$CLEANUP" EXIT INT TERM
 mkdir -p "$tmp"/etc
 echo "$HOSTNAME" > "$tmp"/etc/hostname
 
+# Create user 'nova'
+echo "root:x:0:0:root:/root:/bin/sh" > "$tmp"/etc/passwd
+echo "nova:x:1000:1000:NovaOS User:/home/nova:/bin/sh" >> "$tmp"/etc/passwd
+echo "root:x:0:root" > "$tmp"/etc/group
+echo "nova:x:1000:nova" >> "$tmp"/etc/group
+echo "wheel:x:10:root,nova" >> "$tmp"/etc/group
+echo "video:x:44:root,nova" >> "$tmp"/etc/group
+echo "input:x:104:root,nova" >> "$tmp"/etc/group
+echo "root:*:::1:::" > "$tmp"/etc/shadow
+echo "nova:*:::1:::" >> "$tmp"/etc/shadow
+mkdir -p "$tmp"/home/nova
+
 # Create standard runlevels
 mkdir -p "$tmp"/etc/runlevels/sysinit
 mkdir -p "$tmp"/etc/runlevels/boot

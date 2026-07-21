@@ -21,6 +21,7 @@ profile_novaos() {
 		firefox \
 		xorg-server \
 		xf86-video-vmware \
+		xf86-video-vesa \
 		xf86-input-libinput \
 		font-dejavu \
 		mesa-dri-gallium \
