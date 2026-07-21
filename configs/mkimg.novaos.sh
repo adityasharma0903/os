@@ -5,7 +5,7 @@ profile_novaos() {
 	desc="NovaOS Desktop"
 	arch="x86_64"
 	apkovl="genapkovl-novaos.sh"
-	kernel_cmdline="quiet splash tmpfs_size=2G"
+	kernel_cmdline="quiet splash rootflags=size=2500M"
 	
 	apks="$apks \
 		dbus \
