@@ -31,6 +31,17 @@ if ! command -v lightdm >/dev/null 2>&1; then
     fi
 fi
 
+# Ensure user 'nova' is registered cleanly with PAM and system groups
+if ! id nova >/dev/null 2>&1; then
+    adduser -D -g "NovaOS User" nova 2>/dev/null || true
+    echo "nova:nova" | chpasswd 2>/dev/null || true
+    addgroup nova wheel 2>/dev/null || true
+    addgroup nova video 2>/dev/null || true
+    addgroup nova input 2>/dev/null || true
+    mkdir -p /home/nova
+    chown -R nova:nova /home/nova 2>/dev/null || true
+fi
+
 # Start graphical desktop services
 rc-service dbus start 2>/dev/null || true
 rc-service lightdm start 2>/dev/null || true
