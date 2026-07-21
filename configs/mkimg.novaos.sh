@@ -6,9 +6,9 @@ profile_novaos() {
 	arch="x86_64"
 	apkovl="genapkovl-novaos.sh"
 	modloop_sign=no
-	kernel_cmdline="quiet splash rootflags=size=2500M"
+	kernel_cmdline="quiet splash"
 	
-	apks="$apks \
+	modloop_addons="$modloop_addons \
 		dbus \
 		dbus-openrc \
 		lightdm \
@@ -26,4 +26,6 @@ profile_novaos() {
 		mesa-dri-gallium \
 		udev \
 		ca-certificates"
+
+	apks="$apks $modloop_addons"
 }
