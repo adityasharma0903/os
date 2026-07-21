@@ -112,20 +112,13 @@ if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
     done
 fi
 
-# Ensure public keys are copied to workdir apkroot keys directory so initramfs embeds them
-mkdir -p "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys"
-FOUND_PUBKEY=""
+# Ensure public keys are copied to /etc/apk/keys and workdir so --hostkeys includes them
+mkdir -p /etc/apk/keys "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys"
 for dir in "${SEARCH_DIRS[@]}"; do
     if [ -d "$dir" ]; then
-        for f in "$dir"/*.pub; do
-            if [ -f "$f" ]; then
-                FOUND_PUBKEY="$f"
-                cp -a "$f" "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys/" 2>/dev/null || true
-                cp -a "$f" "$ROOT_DIR/build/aports/scripts/" 2>/dev/null || true
-                echo "Using public key for initramfs: $FOUND_PUBKEY"
-                break 2
-            fi
-        done
+        cp -a "$dir"/*.pub /etc/apk/keys/ 2>/dev/null || true
+        cp -a "$dir"/*.pub "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys/" 2>/dev/null || true
+        cp -a "$dir"/*.pub "$ROOT_DIR/build/aports/scripts/" 2>/dev/null || true
     fi
 done
 
@@ -143,9 +136,9 @@ cd "$ROOT_DIR/build/aports/scripts"
 $SUDO ./mkimage.sh \
     --profile novaos \
     --arch x86_64 \
+    --hostkeys \
     --outdir "$ROOT_DIR/releases" \
     --workdir "$ROOT_DIR/build/work" \
-    ${FOUND_PUBKEY:+--apk-pubkey "$FOUND_PUBKEY"} \
     --repository "http://dl-cdn.alpinelinux.org/alpine/v3.24/main" \
     --repository "http://dl-cdn.alpinelinux.org/alpine/v3.24/community"
 
