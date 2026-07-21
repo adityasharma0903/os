@@ -20,6 +20,9 @@ profile_novaos() {
 		qterminal \
 		firefox \
 		xorg-server \
+		xauth \
+		setxkbmap \
+		xinit \
 		xf86-video-vmware \
 		xf86-video-vesa \
 		xf86-input-libinput \
