@@ -110,7 +110,14 @@ if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
             break
         fi
     done
-fi
+# Ensure public keys are copied to workdir apkroot keys directory so initramfs embeds them
+mkdir -p "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys"
+for dir in "${SEARCH_DIRS[@]}"; do
+    if [ -d "$dir" ]; then
+        cp -a "$dir"/*.pub "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys/" 2>/dev/null || true
+        cp -a "$dir"/*.pub "$ROOT_DIR/build/aports/scripts/" 2>/dev/null || true
+    fi
+done
 
 # Update any existing repository configuration files in workdir from https to http
 if [ -d "$ROOT_DIR/build/work" ]; then
