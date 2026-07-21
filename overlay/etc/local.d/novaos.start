@@ -1,6 +1,36 @@
 #!/bin/sh
 # Automatic NovaOS Desktop startup script
 
-# Start D-Bus and LightDM graphical display manager
+# Expand root RAM disk size to 2.5GB
+mount -o remount,size=2500M / 2>/dev/null || true
+
+# Check if LightDM is already installed
+if ! command -v lightdm >/dev/null 2>&1; then
+    # Auto-detect and mount Live ISO CD-ROM media
+    if [ ! -d /media/cdrom/apks ]; then
+        mkdir -p /media/cdrom
+        for dev in /dev/cdrom /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/vda /dev/vdb; do
+            if mount -t iso9660 -o ro "$dev" /media/cdrom 2>/dev/null; then
+                if [ -d /media/cdrom/apks ]; then
+                    break
+                fi
+                umount /media/cdrom 2>/dev/null || true
+            fi
+        done
+    fi
+
+    # Register local CD repository and install desktop packages into RAM
+    if [ -d /media/cdrom/apks ]; then
+        echo "/media/cdrom/apks" >> /etc/apk/repositories
+        apk add --allow-untrusted \
+            dbus dbus-openrc \
+            lightdm lightdm-openrc lightdm-gtk-greeter \
+            lxqt-desktop openbox pcmanfm-qt qterminal \
+            firefox xorg-server xf86-video-vmware xf86-input-libinput \
+            font-dejavu mesa-dri-gallium udev || true
+    fi
+fi
+
+# Start graphical desktop services
 rc-service dbus start 2>/dev/null || true
 rc-service lightdm start 2>/dev/null || true
