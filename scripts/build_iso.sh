@@ -110,6 +110,8 @@ if [ -n "$CONF_PRIVKEY" ] && [[ "$CONF_PRIVKEY" != /* ]]; then
             break
         fi
     done
+fi
+
 # Ensure public keys are copied to workdir apkroot keys directory so initramfs embeds them
 mkdir -p "$ROOT_DIR/build/work/apkroot-x86_64/etc/apk/keys"
 for dir in "${SEARCH_DIRS[@]}"; do
