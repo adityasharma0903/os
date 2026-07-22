@@ -38,6 +38,8 @@ done
 # Graphical desktop / VMware services:
 # dbus is required for LXQt and LightDM
 ln -sf /etc/init.d/dbus "$tmp"/etc/runlevels/default/dbus
+# elogind for seat management
+ln -sf /etc/init.d/elogind "$tmp"/etc/runlevels/default/elogind
 # lightdm display manager
 ln -sf /etc/init.d/lightdm "$tmp"/etc/runlevels/default/lightdm
 # local startup scripts

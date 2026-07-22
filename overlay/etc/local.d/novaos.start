@@ -1,47 +1,13 @@
 #!/bin/sh
-# Automatic NovaOS Desktop startup script
 
-# Expand root RAM disk size to 2.5GB
-mount -o remount,size=2500M / 2>/dev/null || true
-
-# Check if LightDM is already installed
-if ! command -v lightdm >/dev/null 2>&1; then
-    # Auto-detect and mount Live ISO CD-ROM media
-    if [ ! -d /media/cdrom/apks ]; then
-        mkdir -p /media/cdrom
-        for dev in /dev/cdrom /dev/sr0 /dev/sr1 /dev/sda /dev/sdb /dev/vda /dev/vdb; do
-            if mount -t iso9660 -o ro "$dev" /media/cdrom 2>/dev/null; then
-                if [ -d /media/cdrom/apks ]; then
-                    break
-                fi
-                umount /media/cdrom 2>/dev/null || true
-            fi
-        done
-    fi
-
-    # Register local CD repository and install desktop packages into RAM
-    if [ -d /media/cdrom/apks ]; then
-        echo "/media/cdrom/apks" >> /etc/apk/repositories
-        apk add --allow-untrusted \
-            dbus dbus-openrc \
-            lightdm lightdm-openrc lightdm-gtk-greeter \
-            lxqt-desktop openbox pcmanfm-qt qterminal \
-            firefox xorg-server xauth setxkbmap xinit xf86-video-vmware xf86-video-vesa xf86-input-libinput \
-            font-dejavu mesa-dri-gallium udev || true
-    fi
-fi
-
-# Ensure user 'nova' is registered cleanly with PAM and system groups
 if ! id nova >/dev/null 2>&1; then
-    adduser -D -g "NovaOS User" nova 2>/dev/null || true
-    echo "nova:nova" | chpasswd 2>/dev/null || true
-    addgroup nova wheel 2>/dev/null || true
-    addgroup nova video 2>/dev/null || true
-    addgroup nova input 2>/dev/null || true
-    mkdir -p /home/nova
-    chown -R nova:nova /home/nova 2>/dev/null || true
+    adduser -D -g "NovaOS User" nova
+    echo "nova:nova" | chpasswd
+    addgroup nova wheel
+    addgroup nova video
+    addgroup nova input
 fi
 
-# Start graphical desktop services
-rc-service dbus start 2>/dev/null || true
-rc-service lightdm start 2>/dev/null || true
+rc-service dbus start
+rc-service elogind start
+rc-service lightdm start

@@ -11,6 +11,8 @@ profile_novaos() {
 	apks="$apks \
 		dbus \
 		dbus-openrc \
+		elogind \
+		elogind-openrc \
 		lightdm \
 		lightdm-openrc \
 		lightdm-gtk-greeter \
