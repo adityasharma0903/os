@@ -53,6 +53,8 @@ ln -sf /etc/init.d/udev-trigger "$tmp"/etc/runlevels/boot/udev-trigger
 if [ -n "$NOVAOS_OVERLAY" ] && [ -d "$NOVAOS_OVERLAY" ]; then
 	echo "Installing custom files from overlay: $NOVAOS_OVERLAY" >&2
 	cp -a "$NOVAOS_OVERLAY"/* "$tmp"/
+	chmod 644 "$tmp"/etc/apk/world "$tmp"/etc/apk/repositories 2>/dev/null || true
+	chmod 755 "$tmp"/etc/local.d 2>/dev/null || true
 	chmod +x "$tmp"/etc/local.d/*.start 2>/dev/null || true
 fi
 
