@@ -1,13 +1,22 @@
 #!/bin/sh
 
+# Create nova user on first boot
 if ! id nova >/dev/null 2>&1; then
     adduser -D -g "NovaOS User" nova
     echo "nova:nova" | chpasswd
+
     addgroup nova wheel
     addgroup nova video
     addgroup nova input
+
+    mkdir -p /home/nova
+    chown -R nova:nova /home/nova
+
+    chmod 755 /home
+    chmod 755 /home/nova
 fi
 
-rc-service dbus start
-rc-service elogind start
-rc-service lightdm start
+# Start required services
+rc-service dbus status >/dev/null 2>&1 || rc-service dbus start
+rc-service elogind status >/dev/null 2>&1 || rc-service elogind start
+rc-service lightdm status >/dev/null 2>&1 || rc-service lightdm start

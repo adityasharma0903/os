@@ -8,6 +8,7 @@ fi
 
 CLEANUP=
 tmp="$(mktemp -d -t alpine-apkovl-XXXXXX)"
+chmod 755 "$tmp"
 CLEANUP="rm -rf $tmp"
 trap "$CLEANUP" EXIT INT TERM
 
@@ -59,5 +60,7 @@ if [ -n "$NOVAOS_OVERLAY" ] && [ -d "$NOVAOS_OVERLAY" ]; then
 fi
 
 # Pack the apkovl archive
+chmod 755 "$tmp"
 cd "$tmp"
+chmod 755 .
 tar -c -z -f "$OLDPWD/$HOSTNAME.apkovl.tar.gz" .
